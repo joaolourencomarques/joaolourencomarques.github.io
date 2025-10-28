@@ -2,20 +2,16 @@
 <html lang="pt">
 <head>
 <meta charset="utf-8"/>
-<title>Futsal do SC BEIRAMAR</title>
+<title>Futsal — SC BEIRAMAR (Team Actions + Manual Events + Avaliações)</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<!-- SheetJS for Excel parsing -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
 <style>
-  :root{
-    --bg:#f5f7fb; --card:#fff; --text:#222;
-  }
+  :root{ --bg:#f5f7fb; --card:#fff; --text:#222; }
   body{font-family:Inter,Arial,Helvetica,sans-serif;margin:10px;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
   h1{font-size:18px;margin:0 0 8px}
   .card{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:12px}
   label{font-weight:700}
-  input,select,button{padding:8px;border-radius:8px;border:1px solid #ccc;font-size:15px}
+  input,select,button,textarea{padding:8px;border-radius:8px;border:1px solid #ccc;font-size:15px}
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .players{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
   .player{width:220px;border:1px solid #e6e9ef;padding:10px;border-radius:10px;background:#fff;box-sizing:border-box;display:flex;flex-direction:column;align-items:center}
@@ -26,62 +22,59 @@
   .btn{background:#2e86de;color:#fff;border:none;padding:8px;border-radius:8px;cursor:pointer;font-weight:600}
   .btn.gray{background:#6e6e6e}
   .btn.warn{background:#e74c3c}
+  .team-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+  .team-btn{border-radius:8px;padding:10px 12px;color:#fff;font-weight:700;border:none;cursor:pointer}
+  .team-btn.gos{background:#cc3333}
+  .team-btn.def{background:#2a9d8f}
+  .team-btn.dt{background:#444444}
   table{width:100%;border-collapse:collapse;margin-top:8px}
   th,td{padding:6px;border-bottom:1px solid #eee;font-size:13px;text-align:left}
   .small{font-size:13px;color:#666}
   .muted{color:#666;font-size:13px}
   .event-btn{border:none;color:#fff;padding:10px 8px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;display:inline-block;margin:6px 6px;min-width:50px;min-height:44px;text-align:center;-webkit-tap-highlight-color: rgba(0,0,0,0);touch-action: manipulation;white-space:nowrap}
   #onField{display:flex;flex-wrap:wrap;gap:8px}
-  .slotCard{width:220px;min-height:260px;border:1px dashed #cfd6e6;border-radius:12px;background:#fafcff;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:10px;box-sizing:border-box}
+  .slotCard{width:220px;min-height:280px;border:1px dashed #cfd6e6;border-radius:12px;background:#fafcff;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:10px;box-sizing:border-box}
   .slotCard .empty{margin-top:40px;color:#8891a7}
-  .slotHeader{display:flex;align-items:center;gap:8px}
+  .slotHeader{display:flex;align-items:center;gap:8px;width:100%}
   .slotHeader .badge{font-weight:700;color:#41506b}
   .slotRemove{margin-left:auto}
+  .pos-picker{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .pos-btn{border:1px solid #b7c3d6;background:#eef4ff;color:#274060;font-size:12px;border-radius:999px;padding:4px 10px;cursor:pointer}
+  .pos-btn.active{background:#2e86de;color:#fff;border-color:#2e86de}
   @media (max-width:900px){ .player,.slotCard{width:48%} }
-  @media (max-width:520px){ .player,.slotCard{width:100%} .event-btn{min-width:64px;padding:12px 10px;font-size:15px} input,select,button{font-size:16px;padding:10px;border-radius:10px} .card{padding:14px} }
-  /* legend modal */
+  @media (max-width:520px){
+    .player,.slotCard{width:100%}
+    .event-btn{min-width:64px;padding:12px 10px;font-size:15px}
+    input,select,button,textarea{font-size:16px;padding:10px;border-radius:10px}
+    .card{padding:14px}
+  }
   #legendModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999}
   #legendModal .panel{background:#fff;padding:16px;border-radius:10px;max-width:720px;width:94%;max-height:90vh;overflow:auto}
   #legendContent div.row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #eee}
   @media (max-width:520px){ #legendModal .panel{width:98%;height:92vh;border-radius:12px;padding:14px} #legendContent{font-size:15px} }
-  /* header com logo */
-  .header {
-    display:flex; align-items:center; gap:10px; margin-bottom:8px;
-  }
-  .header .logo {
-    width:40px; height:40px; object-fit:contain; border-radius:6px;
-    background:#fff; /* opcional */
-  }
+  .header { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .header .logo { width:40px; height:40px; object-fit:contain; border-radius:6px; background:#fff; }
   .header h1 { margin:0; font-size:20px; }
-  @media (max-width:520px){
-    .header { gap:8px; }
-    .header .logo { width:32px; height:32px; }
-    .header h1 { font-size:18px; }
-  }
 </style>
 </head>
 <body>
 <div class="header">
-  <!-- se a imagem está na MESMA pasta do HTML, usa src="SCBM.jpeg" -->
-  <!-- se está na pasta das fotos (ex.: images/), usa src="images/SCBM.jpeg" -->
   <img class="logo" src="images/SCBM.jpg" alt="SC Beira-Mar" onerror="this.style.display='none'">
   <h1>Futsal do SC BEIRAMAR</h1>
 </div>
 
-
-<button id="legendBtn" class="btn gray" style="margin-bottom:8px">Legenda</button>
+<button id="legendBtn" class="btn gray" style="margin-bottom:8px" type="button">Legenda</button>
 
 <div id="legendModal" aria-hidden="true">
   <div class="panel">
     <h3 style="margin-top:0">Legenda de Eventos</h3>
     <div id="legendContent"></div>
     <div style="text-align:right;margin-top:12px">
-      <button id="closeLegend" class="btn gray">Fechar</button>
+      <button id="closeLegend" class="btn gray" type="button">Fechar</button>
     </div>
   </div>
 </div>
 
-<!-- Info/session card -->
 <div class="card">
   <label>Informação do Jogo</label>
   <div class="row" style="margin-top:8px;">
@@ -94,175 +87,185 @@
   </div>
 
   <div class="row" style="margin-top:10px;">
-    <button id="saveSession" class="btn">Salvar Sessão</button>
-    <button id="startPart" class="btn gray">Start 1ª Parte</button>
-    <button id="startPart2" class="btn gray">Start 2ª Parte</button>
+    <button id="saveSession" class="btn" type="button">Salvar Sessão</button>
+    <button id="startPart" class="btn gray" type="button">Start 1ª Parte</button>
+    <button id="startPart2" class="btn gray" type="button">Start 2ª Parte</button>
   </div>
   <div class="small" style="margin-top:6px">Ao iniciar 1ª/2ª parte o minuto 0 é guardado; o minuto de cada evento é calculado automaticamente.</div>
 </div>
 
-<!-- Import -->
 <div class="card">
   <label>Importar convocados (CSV / Excel)</label>
-  <div class="small" style="margin-top:6px">Colunas (número, nome do ficheiro da foto - ex.: 29.jpg, nome do atleta)</div>
+  <div class="small" style="margin-top:6px">Colunas: <strong>number</strong>, <strong>photo</strong> (opcional), <strong>name</strong></div>
   <div class="row" style="margin-top:8px;">
     <input id="fileInput" type="file" accept=".csv,.tsv,.xlsx,.xls" />
-    <button id="importBtn" class="btn gray">Importar</button>
-    <button id="clearConv" class="btn warn">Limpar</button>
+    <button id="importBtn" class="btn gray" type="button">Importar</button>
+    <button id="clearConv" class="btn warn" type="button">Limpar</button>
     <div id="importStatus" class="small" style="margin-left:8px"></div>
   </div>
 </div>
 
-<!-- Roster with photos -->
 <div class="card">
   <label>Convocados</label>
   <div id="roster" class="players" style="margin-top:8px"></div>
 </div>
 
-<!-- ON FIELD: fotos + botões de eventos no mesmo cartão -->
 <div class="card">
   <div class="row" style="justify-content:space-between;align-items:center">
     <label>Em Campo — 5 Jogadores (com eventos)</label>
-    <button id="clearSlots" class="btn gray">Limpar Campo</button>
+    <button id="clearSlots" class="btn gray" type="button">Limpar Campo</button>
   </div>
-  <div id="onField" style="margin-top:8px"></div>
-  <div class="small" style="margin-top:8px">Para adicionar, use "Entrar" no cartão do convocado.</div>
+
+  <div class="team-actions" style="margin-top:10px">
+    <button id="team_gos" class="team-btn gos" type="button">Golo sofrido</button>
+    <button id="team_def" class="team-btn def" type="button">Defesa do GR</button>
+    <button id="team_pause" class="team-btn dt" type="button">Pausa no jogo</button>
+  </div>
+
+  <div id="onField" style="margin-top:12px"></div>
+  <div class="small" style="margin-top:8px">Para adicionar, usa “Entrar” no cartão do convocado. Em campo podes definir posição rápida.</div>
 </div>
 
-<!-- Events log and export -->
 <div class="card">
   <div class="row">
-    <button id="exportBtn" class="btn">Exportar Eventos CSV</button>
+    <button id="exportBtn" class="btn" type="button">Exportar Eventos CSV</button>
     <div class="muted" style="margin-left:8px">Eventos: <span id="queueCount">0</span></div>
+  </div>
+
+  <div class="manual-form card" style="margin-top:12px">
+    <label>Adicionar Evento Manual (Avaliação)</label>
+    <div class="manual-row">
+      <select id="manualPlayer" style="min-width:200px">
+        <option value="">(Equipa)</option>
+      </select>
+      <select id="manualCode" style="min-width:320px"></select>
+    </div>
+    <div class="manual-row">
+      <select id="manualRating" style="width:160px">
+        <option value="">Sem avaliação</option>
+        <option value="1">A melhorar</option>
+        <option value="5">Muito Bom</option>
+      </select>
+      <input id="manualNote" placeholder="Nota (opcional) — cria também evento NOTA com timestamp" style="flex:1" />
+    </div>
+    <div style="text-align:right">
+      <button id="manualAdd" class="btn" type="button">Adicionar Evento de Avaliação</button>
+    </div>
   </div>
 
   <div style="margin-top:10px">
     <label>Events Log</label>
     <table id="eventsTable">
-      <thead><tr><th>#</th><th>Min</th><th>Parte</th><th>Player</th><th>Evento</th><th>Sigla</th><th>Timestamp</th></tr></thead>
+      <thead><tr><th>#</th><th>Min</th><th>Parte</th><th>Player</th><th>Evento</th><th>Sigla</th><th>Avaliação</th><th>Nota</th><th>Timestamp</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
 </div>
 
 <script>
-/* ---------- Metadata, colors ---------- */
+/* ---------- Metadata ---------- */
 const eventMeta = {
-  "GOL":  { label: "Golo marcado",                      type: 2, sigla: "GOL" },
-  "GOS":  { label: "Golo sofrido",                      type: 2, sigla: "GOS" },
-  "RAB":  { label: "Remate à baliza",                   type: 3, sigla: "RAB" },
-  "RFB":  { label: "Remate fora",                       type: 3, sigla: "RFB" },
-  "REC":  { label: "Recuperação de bola / Intercepção", type: 4, sigla: "REC" },
-  "PER":  { label: "Perda de bola",                     type: 4, sigla: "PER" },
-  "ASS":  { label: "Assistência",                       type: 4, sigla: "ASS" },
-  "FCO":  { label: "Falta cometida",                    type: 5, sigla: "FCO" },
-  "FSO":  { label: "Falta sofrida",                     type: 5, sigla: "FSO" },
-  "DEF":  { label: "Defesa do GR",                      type: 6, sigla: "DEF" },
-  "PEN_G":{ label: "Penalti marcado",                   type: 7, sigla: "PEN" },
-  "PEN_F":{ label: "Penalti falhado",                   type: 7, sigla: "PEN" },
-  "AMA":  { label: "Cartão amarelo",                    type: 8, sigla: "AMA" },
-  "VER":  { label: "Cartão vermelho",                    type: 8, sigla: "VER" }
+  "ENT":  { label: "Entrou em campo",                   type:1, sigla:"ENT" },
+  "SAI":  { label: "Sai de campo",                      type:1, sigla:"SAI" },
+  "GOL":  { label: "Golo marcado",                      type:2, sigla:"GOL" },
+  "GOS":  { label: "Golo sofrido (equipa)",             type:2, sigla:"GOS" },
+  "RAB":  { label: "Remate à baliza",                   type:3, sigla:"RAB" },
+  "RFB":  { label: "Remate fora",                       type:3, sigla:"RFB" },
+  "REC":  { label: "Recuperação de bola / Intercepção", type:4, sigla:"REC" },
+  "PER":  { label: "Perda de bola",                     type:4, sigla:"PER" },
+  "ASS":  { label: "Assistência",                       type:4, sigla:"ASS" },
+  "FCO":  { label: "Falta cometida",                    type:5, sigla:"FCO" },
+  "FSO":  { label: "Falta sofrida",                     type:5, sigla:"FSO" },
+  "DEF":  { label: "Defesa do GR",                      type:6, sigla:"DEF" },
+  "PEN":  { label: "Penalti",                           type:7, sigla:"PEN" },
+  "DT":   { label: "Desconto de tempo / Pausa",         type:7, sigla:"DT" },
+  "NOTE": { label: "Nota",                              type:8, sigla:"NOTA" },
+
+  /* Eventos de posição (para timeline quando mudas Fixo/Ala/Pivot/GR) */
+  "P_FIXO":  { label: "Posição: Fixo",  type:1, sigla:"POS" },
+  "P_ALA":   { label: "Posição: Ala",   type:1, sigla:"POS" },
+  "P_PIVOT": { label: "Posição: Pivot", type:1, sigla:"POS" },
+  "P_GR":    { label: "Posição: GR",    type:1, sigla:"POS" }
 };
-const PRIORITY_EVENT_CODES = ["ENTRA EM CAMPO","SAI DE CAMPO","GOL","GOS","RAB","RFB","REC","PER","ASS","FCO","FSO","DEF","PEN_G","PEN_F","AMA","VER"];
-const typeColors = {1:"#0F4C81",2:"#186FAF",3:"#228ED7",4:"#33A4F0",5:"#57B5F7",6:"#7EC7FB",7:"#AEE0FF",8:"#DFF6FF" };
+
+/* Avaliações (manual) */
+const assessments = {
+  "AS_POS": { label: "Posicionamento (TÁTICO)", type:1, sigla:"POS" },
+  "AS_COV": { label: "Coberturas e ajudas defensivas (TÁTICO)", type:1, sigla:"COV" },
+  "AS_APO": { label: "Apoio ao portador da bola (TÁTICO)", type:1, sigla:"APO" },
+  "AS_PART":{ label: "Participação em jogadas (TÉCNICO / JOGADA)", type:3, sigla:"PART" },
+  "AS_ATA": { label: "Ataque à bola (TÉCNICO)", type:3, sigla:"ATA" },
+  "AS_PIS": { label: "Pisar a bola (controlo/recepção) (TÉCNICO)", type:3, sigla:"PIS" },
+  "AS_CUM": { label: "Cumprimento de instruções (COMPORTAMENTAL)", type:5, sigla:"CUM" },
+  "AS_ENV": { label: "Envolvimento (COMPORTAMENTAL)", type:5, sigla:"ENV" },
+  "AS_ATT": { label: "Atitude e comportamento (COMPORTAMENTAL)", type:5, sigla:"ATT" },
+  "AS_INT": { label: "Intensidade no jogo (FÍSICO)", type:6, sigla:"INT" },
+  "AS_OUT": { label: "Outro", type:8, sigla:"OUT" }
+};
+for(const k in assessments) eventMeta[k] = assessments[k];
+
+/* Botões de jogador em campo (sem DEF, sem avaliação) */
+const PRIORITY_EVENT_CODES = ["GOL","RAB","RFB","REC","PER","ASS","FCO","FSO","PEN"];
+const typeColors = {1:"#0F4C81",2:"#186FAF",3:"#228ED7",4:"#33A4F0",5:"#57B5F7",6:"#2a9d8f",7:"#AEE0FF",8:"#DFF6FF" };
 
 /* ---------- storage & state ---------- */
 const STORAGE_ROSTER='convocados_roster_v1', STORAGE_QUEUE='events_queue_v1', STORAGE_SESSION='session_v1', STORAGE_ONFIELD='onfield_v1';
 let ROSTER=JSON.parse(localStorage.getItem(STORAGE_ROSTER)||'[]');
 let queue=JSON.parse(localStorage.getItem(STORAGE_QUEUE)||'[]');
 let session=JSON.parse(localStorage.getItem(STORAGE_SESSION)||'{}');
-let onField=JSON.parse(localStorage.getItem(STORAGE_ONFIELD)||'[]');
+let onField=JSON.parse(localStorage.getItem(STORAGE_ONFIELD)||'[]'); // {number, position} | null
 
 /* ---------- helpers ---------- */
-function renderAll(){ renderRoster(); renderOnField(); renderQueue(); }
-function saveAll(){
-  localStorage.setItem(STORAGE_ROSTER, JSON.stringify(ROSTER));
-  localStorage.setItem(STORAGE_QUEUE, JSON.stringify(queue));
-  localStorage.setItem(STORAGE_SESSION, JSON.stringify(session));
-  localStorage.setItem(STORAGE_ONFIELD, JSON.stringify(onField));
-  renderAll();
-}
+function normalizeOnFieldEntry(x){ if(!x) return null; if(typeof x==='number') return {number:x, position:null}; return { number:x.number, position:x.position||null }; }
+function ensureOnFieldShape(){ if(!onField || !onField.length) onField=[null,null,null,null,null]; onField=onField.map(normalizeOnFieldEntry); }
+function inOnField(num){ return onField.findIndex(s=>s && s.number===num) !== -1; }
+
+function renderAll(){ renderRoster(); renderOnField(); renderQueue(); populateManualPlayerList(); populateManualCodeList(); }
+function saveAll(){ localStorage.setItem(STORAGE_ROSTER, JSON.stringify(ROSTER)); localStorage.setItem(STORAGE_QUEUE, JSON.stringify(queue)); localStorage.setItem(STORAGE_SESSION, JSON.stringify(session)); localStorage.setItem(STORAGE_ONFIELD, JSON.stringify(onField)); renderAll(); }
 function nowISO(){ return new Date().toISOString(); }
 function computeMinute(ts){
   if(!session.part1_start) return 0;
   let start=session.part1_start;
   if(session.currentPart===2 && session.part2_start) start=session.part2_start;
   const minutes=Math.floor((new Date(ts)-new Date(start))/60000);
-  return Math.max(0, Math.min(60, minutes));
-}
-function csvSplit(line){
-  const out=[]; let cur=''; let inQ=false;
-  for(let i=0;i<line.length;i++){
-    const ch=line[i];
-    if(ch === '"'){ inQ=!inQ; continue; }
-    if(ch===',' && !inQ){ out.push(cur); cur=''; } else cur+=ch;
-  }
-  out.push(cur); return out.map(s=>s.trim());
+  return Math.max(0, Math.min(120, minutes));
 }
 
-/* ---------- image helper ---------- */
-function getPhotoSrc(p){
-  if(!p) return null; if(p.photo) return 'images/' + p.photo; return 'images/' + p.number + '.jpg';
-}
-
-/* ---------- parse CSV/XLSX ---------- */
+/* ---------- image helper & parsers ---------- */
+function getPhotoSrc(p){ if(!p) return null; if(p.photo) return 'images/' + p.photo; return 'images/' + p.number + '.jpg'; }
 function parseCSV(text){
-  // remove BOM e normaliza CRLF
   text = text.replace(/^﻿/, '');
-  // certo:
-  const linesRaw = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+  const linesRaw = text.split(/\r?\n/).filter(l=>l.trim().length>0);
   if(linesRaw.length===0) return [];
-
-  // detetar delimitador por frequência na 1ª linha com conteúdo
   const first = linesRaw[0];
-  const delimCandidates = [',',';','	'];
-  let delim = ',';
-  let best = -1;
-  for(const d of delimCandidates){
-    const c = first.split(d).length - 1; // split é robusto para TAB
-    if(c>best){ best=c; delim=d; }
-  }
-
-  // parser de linha que respeita aspas
+  const delimCandidates = [',',';','\t'];
+  let delim=',', best=-1;
+  for(const d of delimCandidates){ const c = first.split(d).length - 1; if(c>best){best=c; delim=d;} }
   function splitLine(line){
     const out=[]; let cur=''; let inQ=false;
     for(let i=0;i<line.length;i++){
       const ch=line[i];
-      if(ch==='"') { inQ=!inQ; continue; }
-      if(ch===delim && !inQ){ out.push(cur); cur=''; }
-      else cur+=ch;
+      if(ch==='"'){ inQ=!inQ; continue; }
+      if(ch===delim && !inQ){ out.push(cur); cur=''; } else cur+=ch;
     }
     out.push(cur);
     return out.map(s=>s.trim());
   }
-
-  // header mapping (PT/EN)
   const headerParts = splitLine(linesRaw[0]).map(h=>h.toLowerCase());
-  const synonyms = {
-    number: ['number','número','numero','nº','no','num','nr'],
-    name:   ['name','nome'],
-    photo:  ['photo','foto','photo_filename','foto_ficheiro','imagem']
-  };
+  const synonyms = { number:['number','número','numero','nº','no','num','nr'], name:['name','nome'], photo:['photo','foto','photo_filename','foto_ficheiro','imagem'] };
   const findIdx = keys => keys.map(k=>headerParts.indexOf(k)).find(i=>i!==-1);
-  let idxNumber = findIdx(synonyms.number);
-  let idxName   = findIdx(synonyms.name);
-  let idxPhoto  = findIdx(synonyms.photo);
-
+  let idxNumber = findIdx(synonyms.number), idxName = findIdx(synonyms.name), idxPhoto = findIdx(synonyms.photo);
   const hasHeader = idxNumber!==-1 && idxName!==-1;
   const start = hasHeader ? 1 : 0;
-  if(!hasHeader && linesRaw.length>0 && splitLine(linesRaw[0]).length>=2){
-    // sem header — assume colunas: number, name, [photo]
-    idxNumber = 0; idxName = 1; idxPhoto = 2;
-  }
-
+  if(!hasHeader){ idxNumber=0; idxName=1; idxPhoto=2; }
   const rows=[];
   for(let i=start;i<linesRaw.length;i++){
     const arr = splitLine(linesRaw[i]);
-    const get = (idx)=> (idx!==-1 && idx < arr.length) ? arr[idx] : '';
+    const get=(idx)=> (idx!==-1 && idx < arr.length) ? arr[idx] : '';
     const number = parseInt(get(idxNumber),10);
-    const name = String(get(idxName)||'').trim();
-    const photo = String(get(idxPhoto)||'').trim();
-    if(!isNaN(number) && name) rows.push({number, name, photo});
+    const name=String(get(idxName)||'').trim();
+    const photo=String(get(idxPhoto)||'').trim();
+    if(!isNaN(number) && name) rows.push({number,name,photo});
   }
   return rows;
 }
@@ -283,22 +286,25 @@ function parseXLSXArrayBuffer(ab){
     const number = parseInt(r[numKey],10);
     const name = String(r[nameKey]||'').trim();
     const photo = photoKey ? String(r[photoKey]||'').trim() : '';
-    if(!isNaN(number)) rows.push({number, name, photo});
+    if(!isNaN(number)) rows.push({number,name,photo});
   }
   return rows;
 }
 
-/* ---------- RENDER: convocados com fotos ---------- */
+/* ---------- renderers ---------- */
 function renderRoster(){
-  const el=document.getElementById('roster'); el.innerHTML='';
+  const el=document.getElementById('roster');
+  el.innerHTML='';
   if(!ROSTER) ROSTER=[];
   ROSTER.forEach(p=>{
-    const card=document.createElement('div'); card.className='player';
+    const card=document.createElement('div');
+    card.className='player';
     const src = getPhotoSrc(p);
-    const imgHtml = `<img class=\"photo\" src=\"${src}\" alt=\"${p.name}\" onerror=\"this.style.display='none'\">`;
-    const initials = `<div class=\"initials\">${p.name.split(' ').map(n=>n[0]||'').join('').slice(0,2).toUpperCase()}</div>`;
-    card.innerHTML = `<div class=\"visual\">${imgHtml}${initials}</div><div class=\"name\">${p.number} - ${p.name}</div><div class=\"actions\"><button class=\"btn gray addFieldBtn\" data-num=\"${p.number}\" type=\"button\">Entrar</button></div>`;
+    const imgHtml = `<img class="photo" src="${src}" alt="${p.name}" onerror="this.style.display='none'">`;
+    const initials = `<div class="initials">${p.name.split(' ').map(n=>n[0]||'').join('').slice(0,2).toUpperCase()}</div>`;
+    card.innerHTML = `<div class="visual">${imgHtml}${initials}</div><div class="name">${p.number} - ${p.name}</div><div class="actions"><button class="btn gray addFieldBtn" data-num="${p.number}" type="button">Entrar</button></div>`;
     el.appendChild(card);
+
     const imgEl = card.querySelector('img.photo');
     const initialsEl = card.querySelector('.initials');
     if(imgEl){
@@ -308,170 +314,301 @@ function renderRoster(){
   });
 }
 
-/* ---------- RENDER: Em Campo (fotos + botões de eventos) ---------- */
+function posButtons(i, current){
+  const opts = ['Fixo','Ala','Pivot','GR'];
+  return `<div class="pos-picker">
+    ${opts.map(p=>`<button class="pos-btn ${current===p?'active':''}" data-idx="${i}" data-pos="${p}" type="button">${p}</button>`).join('')}
+  </div>`;
+}
+
 function renderOnField(){
-  const root=document.getElementById('onField'); root.innerHTML='';
+  const root=document.getElementById('onField');
+  root.innerHTML='';
+  ensureOnFieldShape();
+
   for(let i=0;i<5;i++){
-    const holder=document.createElement('div'); holder.className='slotCard';
-    const num = onField[i];
-    if(!num){ holder.innerHTML = `<div class=\"empty\">Vazio</div>`; root.appendChild(holder); continue; }
+    const holder=document.createElement('div');
+    holder.className='slotCard';
+    const entry = onField[i];
+    if(!entry){
+      holder.innerHTML = `<div class="empty">Vazio</div>`;
+      root.appendChild(holder);
+      continue;
+    }
+    const num = entry.number;
+    const pos = entry.position || '—';
     const p=ROSTER.find(r=>r.number===num)||{number:num,name:'Unknown'};
     const src=getPhotoSrc(p);
-    const initials = p.name.split(' ').map(s=>s[0]||'').join('').slice(0,2).toUpperCase();
-
+    const initials=p.name.split(' ').map(s=>s[0]||'').join('').slice(0,2).toUpperCase();
     const buttonsHtml = PRIORITY_EVENT_CODES.map(code=>{
-      const meta = eventMeta[code]; if(!meta) return '';
+      if(!(code in eventMeta)) return '';
+      const meta = eventMeta[code];
       const color = typeColors[meta.type] || '#2e86de';
-      return `<button class=\"event-btn\" data-num=\"${p.number}\" data-code=\"${code}\" title=\"${meta.label}\" style=\"background:${color}\" type=\"button\">${meta.sigla}</button>`;
+      return `<button class="event-btn" data-num="${p.number}" data-code="${code}" title="${meta.label}" style="background:${color}" type="button">${meta.sigla}</button>`;
     }).join('');
-
     holder.innerHTML = `
-      <div class=\"slotHeader\" style=\"width:100%\">
-        <span class=\"badge\">Pos ${i+1}</span>
-        <button class=\"btn gray slotRemove\" data-idx=\"${i}\" type=\"button\">Sair</button>
+      <div class="slotHeader" style="width:100%">
+        <span class="badge">Pos ${i+1} — ${pos}</span>
+        <button class="btn gray slotRemove" data-idx="${i}" type="button">Sair</button>
       </div>
-      <div style=\"display:flex;flex-direction:column;align-items:center;margin-top:6px\">
-        <img class=\"photo\" src=\"${src}\" alt=\"${p.name}\" onerror=\"this.style.display='none';this.nextElementSibling.style.display='flex'\">
-        <div class=\"initials\" style=\"display:none\">${initials}</div>
-        <div class=\"name\" style=\"margin-top:8px\">${p.number} - ${p.name}</div>
+      <div style="display:flex;flex-direction:column;align-items:center;margin-top:6px">
+        <img class="photo" src="${src}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="initials" style="display:none">${initials}</div>
+        <div class="name" style="margin-top:8px">${p.number} - ${p.name}</div>
       </div>
-      <div style=\"margin-top:8px\">${buttonsHtml}</div>
-    `;
+      ${posButtons(i, entry.position || null)}
+      <div style="margin-top:8px">${buttonsHtml}</div>`;
     root.appendChild(holder);
   }
+
+  // eventos dos botões de evento (sem avaliação)
+  document.querySelectorAll('#onField .event-btn').forEach(btn=>{
+    btn.onclick = function(){
+      const num=parseInt(this.dataset.num,10);
+      const code=this.dataset.code;
+      if(!inOnField(num)){ alert('Só para jogadores em campo'); return; }
+      createAndQueueEvent(num, code);
+    };
+  });
 }
 
-/* ---------- events ---------- */
-function createAndQueueEvent(player_no, code){
-  const ts = nowISO(); const minute = computeMinute(ts); const meta = eventMeta[code] || {};
-  const ev = { event_id:'evt_'+Math.random().toString(36).slice(2,9), session_id: session.session_id || document.getElementById('session_id').value || 's_offline', part: session.currentPart || 1, client_timestamp: ts, minute, player_id: player_no, event_code: code, event_label: meta.label || code, event_sigla: meta.sigla || code };
-  queue.push(ev); renderQueue(); saveAll();
+/* ---------- team-level actions ---------- */
+function createTeamEvent(code){
+  const ts = nowISO();
+  const minute = computeMinute(ts);
+  const meta = eventMeta[code] || {};
+  const ev = {
+    event_id:'evt_'+Math.random().toString(36).slice(2,9),
+    session_id: session.session_id || document.getElementById('session_id').value || 's_offline',
+    part: session.currentPart || 1,
+    client_timestamp: ts,
+    minute,
+    player_id: null,
+    event_code: code,
+    event_label: meta.label || code,
+    event_sigla: meta.sigla || code,
+    note: '',
+    rating: '',
+    rating_label: ''
+  };
+  queue.push(ev);
+  saveAll();
 }
 
-/* ---------- GLOBAL CLICK DELEGATION (corrige listeners perdidos) ---------- */
+/* ---------- events for players ---------- */
+function createAndQueueEvent(player_no, code, note){
+  const ts = nowISO();
+  const minute = computeMinute(ts);
+  const meta = eventMeta[code] || {};
+  const ev = {
+    event_id:'evt_'+Math.random().toString(36).slice(2,9),
+    session_id: session.session_id || document.getElementById('session_id').value || 's_offline',
+    part: session.currentPart || 1,
+    client_timestamp: ts,
+    minute,
+    player_id: player_no,
+    event_code: code,
+    event_label: meta.label || code,
+    event_sigla: meta.sigla || code,
+    note: note || '',
+    rating: '',
+    rating_label: ''
+  };
+  queue.push(ev);
+  saveAll();
+}
+
+/* ---------- global click delegation ---------- */
 document.addEventListener('click', (e)=>{
+  // entrar
   const addBtn = e.target.closest('.addFieldBtn');
   if(addBtn){
     const num = parseInt(addBtn.dataset.num,10);
-    if(onField.includes(num)){ alert('Já em campo'); return; }
+    if(inOnField(num)){ alert('Já em campo'); return; }
     const filled = onField.filter(Boolean).length;
     if(filled >= 5){ alert('Campo já tem 5'); return; }
     const empty = onField.indexOf(null);
-    if(empty === -1) onField.push(num); else onField[empty] = num;
-    // ENT automático ao entrar
+    const entry = { number:num, position: null };
+    if(empty === -1) onField.push(entry);
+    else onField[empty] = entry;
     createAndQueueEvent(num,'ENT');
+    return;
+  }
+
+  // mudar posição (e registar evento P_*)
+  const posBtn = e.target.closest('.pos-btn');
+  if(posBtn){
+    const idx = parseInt(posBtn.dataset.idx,10);
+    const newPos = posBtn.dataset.pos; // Fixo|Ala|Pivot|GR
+    if(onField[idx]){
+      onField[idx].position = newPos;
+      const num = onField[idx].number;
+      const codeMap = { 'Fixo':'P_FIXO', 'Ala':'P_ALA', 'Pivot':'P_PIVOT', 'GR':'P_GR' };
+      createAndQueueEvent(num, codeMap[newPos]);
+    }
+    return;
+  }
+
+  // sair
+  const rm = e.target.closest('.slotRemove');
+  if(rm){
+    const idx = parseInt(rm.dataset.idx,10);
+    const entry = onField[idx];
+    const num = entry ? entry.number : null;
+    if(num!=null){ createAndQueueEvent(num,'SAI'); }
+    onField[idx] = null;
     saveAll();
     return;
   }
 
-  const evBtn = e.target.closest('.event-btn');
-  if(evBtn){
-    const num = parseInt(evBtn.dataset.num,10);
-    const code = evBtn.dataset.code;
-    if(!onField.includes(num)) { alert('Só para jogadores em campo'); return; }
-    createAndQueueEvent(num, code);
+  if(e.target && e.target.id === 'clearSlots'){
+    if(confirm('Remover todos os 5 do campo?')){
+      onField=[null,null,null,null,null];
+      saveAll();
+    }
     return;
-  }
-
-  const rmBtn = e.target.closest('.slotRemove');
-  if(rmBtn){
-    const idx = parseInt(rmBtn.dataset.idx,10);
-    const playerNum = onField[idx];
-    if(playerNum){ createAndQueueEvent(playerNum,'SAI'); }
-    onField[idx] = null; saveAll();
-    return;
-  }
-
-  if(e.target.id === 'clearSlots'){
-    if(confirm('Remover todos os 5 do campo?')){ onField=[null,null,null,null,null]; saveAll(); }
   }
 });
 
-/* ---------- Queue render ---------- */
+/* ---------- equipa: sem prompts ---------- */
+document.getElementById('team_gos').addEventListener('click', ()=>{ createTeamEvent('GOS'); });
+document.getElementById('team_def').addEventListener('click', ()=>{ createTeamEvent('DEF'); });
+document.getElementById('team_pause').addEventListener('click', ()=>{ createTeamEvent('DT'); });
+
+/* ---------- queue rendering ---------- */
 function renderQueue(){
-  const tbody=document.querySelector('#eventsTable tbody'); if(!tbody) return; tbody.innerHTML='';
+  const tbody=document.querySelector('#eventsTable tbody');
+  if(!tbody) return;
+  tbody.innerHTML='';
   queue.forEach((ev,i)=>{
-    const p=ROSTER.find(x=>x.number===ev.player_id);
+    const p = ev.player_id == null ? null : ROSTER.find(x=>x.number===ev.player_id);
+    const playerLabel = ev.player_id == null ? '(equipa)' : `${ev.player_id} - ${p? p.name: ''}`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${i+1}</td><td>${ev.minute}</td><td>${ev.part}</td><td>${ev.player_id} - ${p? p.name:''}</td><td>${ev.event_label}</td><td>${ev.event_sigla}</td><td>${ev.client_timestamp}</td>`;
+    tr.innerHTML = `<td>${i+1}</td><td>${ev.minute}</td><td>${ev.part}</td><td>${playerLabel}</td><td>${ev.event_label}</td><td>${ev.event_sigla}</td><td></td><td>${ev.note || ''}</td><td>${ev.client_timestamp}</td>`;
     tbody.appendChild(tr);
   });
-  const cnt=document.getElementById('queueCount'); if(cnt) cnt.innerText = queue.length;
+  const cnt=document.getElementById('queueCount');
+  if(cnt) cnt.innerText = queue.length;
 }
 
-/* substituições rápidas (mantidas para compat.) */
-function doSubstitution(enterNum){
-  const leave = prompt('Nº que sai (entre os 5 em campo: ' + onField.filter(Boolean).join(',') + ')');
-  const leaveNum = parseInt(leave,10);
-  if(!onField.includes(leaveNum)){ alert('Jogador não em campo'); return; }
-  const idx = onField.indexOf(leaveNum);
-  onField[idx] = enterNum;
-  createAndQueueEvent(leaveNum,'SAI DE CAMPO');
-  createAndQueueEvent(enterNum,'ENTRA EM CAMPO');
-  saveAll();
-}
-
-/* ---------- import ---------- */
-const importBtn = document.getElementById('importBtn');
-importBtn.addEventListener('click', async ()=>{
+/* ---------- import / manual / export / sessão / legenda / init ---------- */
+document.getElementById('importBtn').addEventListener('click', async ()=>{
   const input=document.getElementById('fileInput');
   if(!input.files.length){ alert('Escolhe ficheiro CSV ou Excel'); return; }
-  const f=input.files[0]; const name=f.name.toLowerCase(); document.getElementById('importStatus').innerText='A importar...';
+  const f=input.files[0]; const name=f.name.toLowerCase();
+  document.getElementById('importStatus').innerText='A importar...';
   try{
     let parsed=[];
-    if(name.endsWith('.csv') || name.endsWith('.tsv')){ const txt = await f.text(); parsed = parseCSV(txt); }
-    else if(name.endsWith('.xls')||name.endsWith('.xlsx')){ const ab = await f.arrayBuffer(); parsed = parseXLSXArrayBuffer(ab); }
+    if(name.endsWith('.csv')||name.endsWith('.tsv')){ const txt=await f.text(); parsed = parseCSV(txt); }
+    else if(name.endsWith('.xls')||name.endsWith('.xlsx')){ const ab=await f.arrayBuffer(); parsed=parseXLSXArrayBuffer(ab); }
     else { alert('Formato não suportado'); document.getElementById('importStatus').innerText=''; return; }
-    if(!parsed || parsed.length === 0){ alert('Nenhuma linha válida (number,name)'); document.getElementById('importStatus').innerText='Erro'; return; }
-    parsed = parsed.map(r=>({ number:r.number, name:r.name, photo:(r.photo||'').trim() }));
-    parsed = parsed.filter(r=>r.number && r.name);
-    if(parsed.length===0){ alert('Nenhuma linha válida após validação'); document.getElementById('importStatus').innerText='Erro'; return; }
-    ROSTER = parsed; onField=[null,null,null,null,null]; queue=[]; saveAll(); document.getElementById('importStatus').innerText='Import OK: ' + ROSTER.length + ' atletas';
+
+    if(!parsed || parsed.length===0){ alert('Nenhuma linha válida (number,name)'); document.getElementById('importStatus').innerText='Erro'; return; }
+    parsed = parsed.map(r=>({ number:r.number, name:r.name, photo:(r.photo||'').trim() })).filter(r=>r.number && r.name);
+    ROSTER = parsed; onField=[null,null,null,null,null]; queue=[]; saveAll();
+    document.getElementById('importStatus').innerText='Import OK: ' + ROSTER.length + ' atletas';
   }catch(e){ console.error(e); alert('Erro ao importar: ' + e.message); document.getElementById('importStatus').innerText='Erro'; }
 });
 
 document.getElementById('clearConv').addEventListener('click', ()=>{
-  if(confirm('Remover todos os convocados e eventos?')){ ROSTER=[]; queue=[]; onField=[null,null,null,null,null]; saveAll(); document.getElementById('importStatus').innerText='Convocados limpos'; }
+  if(confirm('Remover todos os convocados e eventos?')){
+    ROSTER=[]; queue=[]; onField=[null,null,null,null,null]; saveAll();
+    document.getElementById('importStatus').innerText='Convocados limpos';
+  }
 });
 
-/* export */
+function populateManualPlayerList(){
+  const sel=document.getElementById('manualPlayer');
+  if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">(Equipa)</option>';
+  ROSTER.forEach(p=>{
+    const opt=document.createElement('option');
+    opt.value = p.number;
+    opt.textContent = p.number + ' - ' + p.name;
+    sel.appendChild(opt);
+  });
+  sel.value = cur || '';
+}
+function populateManualCodeList(){
+  const sel=document.getElementById('manualCode');
+  if(!sel) return;
+  sel.innerHTML = '';
+  const codes = Object.keys(eventMeta).filter(c => c.startsWith('AS_'));
+  codes.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = eventMeta[c].label; // sem siglas
+    sel.appendChild(opt);
+  });
+  if(codes.length) sel.value = 'AS_OUT';
+}
+
+document.getElementById('manualAdd').addEventListener('click', ()=>{
+  const playerVal = document.getElementById('manualPlayer').value;
+  const code = document.getElementById('manualCode').value;
+  const note = document.getElementById('manualNote').value.trim();
+  const ratingVal = document.getElementById('manualRating').value;
+  let rating = null, rating_label = '';
+  if(ratingVal === '1'){ rating = 1; rating_label = 'A melhorar'; }
+  else if(ratingVal === '5'){ rating = 5; rating_label = 'Muito Bom'; }
+  if(!code){ alert('Seleciona um indicador de avaliação'); return; }
+  const ts = nowISO(); const minute = computeMinute(ts); const part = session.currentPart || 1;
+  const evBase = { event_id:'evt_'+Math.random().toString(36).slice(2,9), session_id: session.session_id || document.getElementById('session_id').value || 's_offline',
+    part, client_timestamp: ts, minute, player_id: (playerVal === '' ? null : parseInt(playerVal,10)),
+    event_code: code, event_label: eventMeta[code].label, event_sigla: eventMeta[code].sigla, note: note, rating: rating, rating_label: rating_label };
+  queue.push(evBase);
+  if(note){ const tsNote=nowISO(); const minuteNote=computeMinute(tsNote); const playerForNote=(playerVal===''?null:parseInt(playerVal,10));
+    const evNote={ event_id:'evt_'+Math.random().toString(36).slice(2,9), session_id: session.session_id || document.getElementById('session_id').value || 's_offline',
+      part, client_timestamp: tsNote, minute: minuteNote, player_id: playerForNote, event_code: 'NOTE', event_label: eventMeta['NOTE'].label, event_sigla: eventMeta['NOTE'].sigla, note: note, rating:'', rating_label:'' };
+    queue.push(evNote);
+  }
+  document.getElementById('manualNote').value=''; document.getElementById('manualRating').value=''; saveAll();
+});
+
 document.getElementById('exportBtn').addEventListener('click', ()=>{
   if(queue.length===0){ alert('Sem eventos'); return; }
-  const rows=queue.map(ev=>[ev.event_id,ev.session_id,ev.part,ev.client_timestamp,ev.minute,ev.player_id,ev.event_code,ev.event_label,ev.event_sigla].map(v=>`"${(''+v).replace(/"/g,'""')}"`).join(','));
-  const hdr='"event_id","session_id","part","client_timestamp","minute","player_id","event_code","event_label","event_sigla"';
+  const rows = queue.map(ev => {
+    const player = (ev.player_id == null) ? '' : ev.player_id;
+    return [ev.event_id, ev.session_id, ev.part, ev.client_timestamp, ev.minute, player, ev.event_code, ev.event_label, ev.event_sigla, ev.rating || '', ev.rating_label || '', ev.note || '']
+      .map(v => `"${(''+(v==null?'':v)).replace(/"/g,'""')}"`).join(',');
+  });
+  const hdr = '"event_id","session_id","part","client_timestamp","minute","player_id","event_code","event_label","event_sigla","rating","rating_label","note"';
   const csv = [hdr].concat(rows).join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='events_export.csv'; document.body.appendChild(a); a.click(); a.remove();
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'events_export.csv'; document.body.appendChild(a); a.click(); a.remove();
 });
 
-/* session */
 document.getElementById('saveSession').addEventListener('click', ()=>{
   session.session_id=document.getElementById('session_id').value||('s_'+Date.now());
-  session.date=document.getElementById('date').value; session.time=document.getElementById('time').value;
-  session.location=document.getElementById('location').value; session.competition=document.getElementById('competition').value; session.round=document.getElementById('round').value; saveAll(); alert('Sessão salva: '+session.session_id);
+  session.date=document.getElementById('date').value;
+  session.time=document.getElementById('time').value;
+  session.location=document.getElementById('location').value;
+  session.competition=document.getElementById('competition').value;
+  session.round=document.getElementById('round').value;
+  saveAll();
+  alert('Sessão salva: '+session.session_id);
 });
-document.getElementById('startPart').addEventListener('click', ()=>{ session.part1_start=new Date().toISOString(); session.currentPart=1; saveAll(); alert('1ª Parte iniciada');});
-document.getElementById('startPart2').addEventListener('click', ()=>{ session.part2_start=new Date().toISOString(); session.currentPart=2; saveAll(); alert('2ª Parte iniciada');});
+document.getElementById('startPart').addEventListener('click', ()=>{ session.part1_start=new Date().toISOString(); session.currentPart=1; saveAll(); alert('1ª Parte iniciada'); });
+document.getElementById('startPart2').addEventListener('click', ()=>{ session.part2_start=new Date().toISOString(); session.currentPart=2; saveAll(); alert('2ª Parte iniciada'); });
 
-/* Legend modal */
 function buildLegendContent(){
   const container=document.getElementById('legendContent'); container.innerHTML='';
   const items=Object.keys(eventMeta).map(k=>({code:k,...eventMeta[k]}));
   items.sort((a,b)=>a.type-b.type||a.sigla.localeCompare(b.sigla));
   let currentType=null;
   items.forEach(it=>{
-    if(it.type!==currentType){ currentType=it.type; const hdr=document.createElement('div'); hdr.style.marginTop='6px'; hdr.style.marginBottom='4px'; hdr.innerHTML=`<strong>Tipo ${currentType}</strong>`; container.appendChild(hdr);} 
-    const row=document.createElement('div'); row.className='row'; row.style.alignItems='center'; row.style.gap='10px'; row.innerHTML=`<div style=\"width:28px;height:18px;background:${typeColors[it.type]};border-radius:4px;\"></div><div style=\"flex:1;margin-left:8px\"><strong>${it.sigla}</strong> — ${it.label}</div>`; container.appendChild(row);
+    if(it.type!==currentType){ currentType=it.type; const hdr=document.createElement('div'); hdr.style.marginTop='6px'; hdr.style.marginBottom='4px'; hdr.innerHTML=`<strong>Tipo ${currentType}</strong>`; container.appendChild(hdr); }
+    const row=document.createElement('div'); row.className='row'; row.style.alignItems='center'; row.style.gap='10px';
+    row.innerHTML=`<div style="width:28px;height:18px;background:${typeColors[it.type]};border-radius:4px;"></div><div style="flex:1;margin-left:8px"><strong>${it.sigla}</strong> — ${it.label}</div>`;
+    container.appendChild(row);
   });
 }
 function showLegend(){ buildLegendContent(); document.getElementById('legendModal').style.display='flex'; document.getElementById('legendModal').setAttribute('aria-hidden','false'); }
 function closeLegend(){ document.getElementById('legendModal').style.display='none'; document.getElementById('legendModal').setAttribute('aria-hidden','true'); }
-
 document.getElementById('legendBtn').addEventListener('click', showLegend);
 document.getElementById('closeLegend').addEventListener('click', closeLegend);
 
-/* init */
 (function init(){
   try{
     const r=localStorage.getItem(STORAGE_ROSTER); if(r) ROSTER=JSON.parse(r);
@@ -479,7 +616,7 @@ document.getElementById('closeLegend').addEventListener('click', closeLegend);
     const s=localStorage.getItem(STORAGE_SESSION); if(s) session=JSON.parse(s);
     const of=localStorage.getItem(STORAGE_ONFIELD); if(of) onField=JSON.parse(of);
   }catch(e){ console.warn('init err',e); }
-  if(!ROSTER) ROSTER=[]; if(!onField||onField.length===0) onField=[null,null,null,null,null];
+  ensureOnFieldShape();
   renderAll();
 })();
 </script>
