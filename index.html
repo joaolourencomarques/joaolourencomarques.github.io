@@ -177,7 +177,7 @@ const eventMeta = {
   "FCO":  { label: "Falta cometida",                    type:5, sigla:"FCO" },
   "FSO":  { label: "Falta sofrida",                     type:5, sigla:"FSO" },
   "DEF":  { label: "Defesa do GR",                      type:6, sigla:"DEF" },
-  "PEN":  { label: "Penalti",                           type:7, sigla:"PEN" },
+  "FAI":  { label: "Fair play",                           type:7, sigla:"FAI" },
   "DT":   { label: "Desconto de tempo / Pausa",         type:7, sigla:"DT" },
   "NOTE": { label: "Nota",                              type:8, sigla:"NOTA" },
 
@@ -205,7 +205,7 @@ const assessments = {
 for(const k in assessments) eventMeta[k] = assessments[k];
 
 /* Botões de jogador em campo (sem DEF, sem avaliação) */
-const PRIORITY_EVENT_CODES = ["GOL","RAB","RFB","REC","PER","ASS","FCO","FSO","PEN"];
+const PRIORITY_EVENT_CODES = ["GOL","RAB","RFB","REC","PER","ASS","FCO","FSO","FAI"];
 const typeColors = {1:"#0F4C81",2:"#186FAF",3:"#228ED7",4:"#33A4F0",5:"#57B5F7",6:"#2a9d8f",7:"#AEE0FF",8:"#DFF6FF" };
 
 /* ---------- storage & state ---------- */
